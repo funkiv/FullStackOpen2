@@ -69,6 +69,20 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
+  
+  const personExists = persons.some(person => 
+    person.name.toLowerCase() === body.name.toLowerCase())
+
+  if(!body.name || !body.number) {
+    response.status(400).json({
+      error: 'content missing'
+    })
+  } else if (personExists) {
+    response.status(400).json({ 
+      error: 'name must be unique' 
+    })
+  }
+
   const person = {
     id: generateId(),
     name: body.name,
@@ -76,7 +90,6 @@ app.post('/api/persons', (request, response) => {
   }
   
   persons = persons.concat(person)
-  console.log(persons);
   response.json(person)
 })
 
