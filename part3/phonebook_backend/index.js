@@ -3,7 +3,6 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
 
 const app = express()
 
@@ -33,20 +32,20 @@ const Person = require('./models/person')
 
 //Root route
 app.get('/', (request, response) => {
-    response.send('<h1>Phonebook</h1>')
+  response.send('<h1>Phonebook</h1>')
 })
 
 //Info Route
 app.get('/info', (request, response) => {
-  console.log(new Date());
-  request.requestTime = new Date();
-  console.log(request.requestTime);
+  console.log(new Date())
+  request.requestTime = new Date()
+  console.log(request.requestTime)
   Person.countDocuments({}).then(count => {
     response.send(
       `<p>Phonebook has info for ${count} people</p>
       </br>
       <p>${request.requestTime}</p>
-      `)  
+      `)
   })
 })
 
@@ -55,7 +54,7 @@ app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(persons => {
     response.json((persons))
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //Get persons by ID
@@ -77,7 +76,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(id).then(person => {
     response.json(person)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //Add new person
@@ -94,11 +93,11 @@ app.post('/api/persons', (request, response, next) => {
     name: body.name,
     number: body.number,
   })
-  
+
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -116,12 +115,12 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-//Used when endpoint of a requested route is unknown 
+//Used when endpoint of a requested route is unknown
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint'})
+  response.status(404).send({ error: 'unknown endpoint' })
 }
 //handles all routes not handled by previous routes
-//should be the last middleware 
+//should be the last middleware
 app.use(unknownEndpoint)
 
 app.use(errorHandler)
