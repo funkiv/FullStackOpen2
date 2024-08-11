@@ -8,7 +8,7 @@ const totalLikes = (blogs) => {
 
 const favoriteBlog = (blogs) => {
   if (blogs.length === 0) return null
-  
+
   let topBlog = blogs.reduce((mostLiked, current) =>
     mostLiked.likes < current.likes ? current : mostLiked,{ likes: 0, })
 
