@@ -15,8 +15,7 @@ beforeEach(async () => {
   const blogObjects = helper.initialBlogs
     .map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
-  const savedBlogs = await Promise.all(promiseArray)
-  console.log(savedBlogs)
+  await Promise.all(promiseArray)
 })
 
 test('response returns every note added', async () => {
@@ -26,7 +25,16 @@ test('response returns every note added', async () => {
     .expect('Content-Type', /application\/json/)
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
+})
 
+test('response identifier is id', async () => {
+  const response = await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+  response.body.forEach(blog => {
+    assert(Object.hasOwn(blog, 'id'))
+  })
 })
 
 after(async () => {
