@@ -73,6 +73,31 @@ test('if missing likes default value is 0', async () => {
 
 })
 
+test('if missing title and url properites respond 400', async () => {
+  const brokenBlogs =     [{
+    author: 'Charles',
+    url: 'http://hello.com',
+    likes: 3
+  },
+  {
+    title: 'How to evict your tenant',
+    author: 'Brandi',
+    likes: 8
+  },
+  {
+    author: 'Charles',
+    likes: 3
+  }]
+
+  const promiseArray = brokenBlogs.map((blog) => {
+    return api
+      .post('/api/blogs')
+      .send(blog)
+      .expect(400)
+  })
+  await Promise.all(promiseArray)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

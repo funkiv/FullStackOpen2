@@ -12,7 +12,12 @@ blogRouter.get('/:id', (request, response) => {
 })
 
 blogRouter.post('', async (request, response) => {
+  if(!request.body.title || !request.body.url){
+    return response.status(400).json({ error: 'Title or URL missing' })
+  }
+
   if(!request.body.likes) request.body.likes = 0
+
   const newBlog = await Blog(request.body).save()
   response.status(201).json(newBlog)
 })
