@@ -11,14 +11,9 @@ blogRouter.get('/:id', (request, response) => {
   })
 })
 
-blogRouter.post('', (request, response) => {
-  const blog = new Blog(request.body)
-
-  blog
-    .save()
-    .then(result => {
-      response.status(201).json(result)
-    })
+blogRouter.post('', async (request, response) => {
+  const newBlog = await Blog(request.body).save()
+  response.status(201).json(newBlog)
 })
 
 module.exports = blogRouter
