@@ -12,6 +12,7 @@ blogRouter.get('/:id', (request, response) => {
 })
 
 blogRouter.post('', async (request, response) => {
+  if(!request.body.likes) request.body.likes = 0
   const newBlog = await Blog(request.body).save()
   response.status(201).json(newBlog)
 })

@@ -57,6 +57,22 @@ test('if POST functions and adds proper content', async () => {
   assert(titles.includes('How to make your landlord happy'))
 })
 
+test('if missing likes default value is 0', async () => {
+  const newBlog =   {
+    title: 'How to make your landlord happy',
+    author: 'Charles',
+    url: 'http://hello.com',
+  }
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  assert(response.body.likes === 0)
+
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
