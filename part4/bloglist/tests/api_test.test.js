@@ -97,6 +97,41 @@ describe('when a blog is initally saved', () => {
       await Promise.all(promiseArray)
     })
   })
+
+  describe('when a blog is deleted', () => {
+    test('when a single blog post is deleted', async () => {
+      const savedBlog = await Blog.findOne()
+
+      await api
+        .delete(`/api/blogs/${savedBlog._id}`)
+        .expect(204)
+    })
+
+    test('when blog id does not exist', async () => {
+      const nonExistentId = await helper.nonExistingId()
+
+      await api
+        .delete(`/api/blogs/${nonExistentId}`)
+        .expect(404)
+        .expect('Content-Type', /application\/json/)
+    })
+  })
+
+  describe('when updating properties of a blog', () => {
+    test('if likes PUTS correctly', async () => {
+      const savedBlog = await Blog.findOne()
+      const newLikes = savedBlog.likes + 1
+
+      const response = await api
+        .put(`/api/blogs/${savedBlog._id}`)
+        .send({ likes: newLikes })
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(newLikes, response.body.likes)
+    })
+  })
+
 })
 
 after(async () => {
