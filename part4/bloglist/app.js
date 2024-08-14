@@ -15,6 +15,7 @@ app.use(express.json())
 mongoose.connect(config.MONGODB_URI)
 
 app.use(middleware.requestLogger)
+app.use(middleware.tokenExtractor)
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
