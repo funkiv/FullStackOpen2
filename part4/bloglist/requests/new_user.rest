@@ -1,8 +1,18 @@
 POST http://localhost:3003/api/users
 content-type: application/json
 
-{
-  "username": "club2727",
-  "name": "Chuck",
-  "password": "snowdojo"
-}
+  {
+    "username": "club2727",
+    "name": "Chuck",
+    "password": "snowdojo"
+  }
+
+###
+POST http://localhost:3003/api/users
+content-type: application/json
+
+  {
+    "username": "alice123",
+    "name": "Alice",
+    "password": "wonderland"
+  }
