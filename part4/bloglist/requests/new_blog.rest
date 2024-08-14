@@ -1,5 +1,6 @@
 POST http://localhost:3003/api/blogs
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNsdWIyNzI3IiwiaWQiOiI2NmJkMzdkZGI3Mjc4OTNhMjhmZmMyNzEiLCJpYXQiOjE3MjM2NzY2NDR9.Evhi45j33v9PP_v7GdTjOMHQGv2SNP1ybJ9cPywhCO8
 
 {
   "title": "How to ...",
