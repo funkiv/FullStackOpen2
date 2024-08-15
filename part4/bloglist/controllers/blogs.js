@@ -32,13 +32,6 @@ blogsRouter.put('/:id', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
 
-  //User token authorization
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid ' })
-  }
-  const user = await User.findById(decodedToken.id)
-
   if(!body.title || !body.url) {
     return response.status(400).json({ error: 'Title or URL missing' })
   }
@@ -47,7 +40,7 @@ blogsRouter.post('/', async (request, response) => {
     url: body.url,
     title: body.title,
     author: body.author,
-    user: user._id,
+    user: request.user._id,
     likes: body.likes === undefined ? 0 : body.likes
   })
 
@@ -55,24 +48,17 @@ blogsRouter.post('/', async (request, response) => {
 
   const savedBlog = await blog.save()
 
-  user.blogs = user.blogs.concat(savedBlog._id)
-  await user.save()
+  request.user.blogs = request.user.blogs.concat(savedBlog._id)
+  await request.user.save()
 
   response.status(201).json(savedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  //User token authorization
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid ' })
-  }
-  const user = await User.findById(decodedToken.id)
-
   const deletedBlog = await Blog.findById(request.params.id)
   if (deletedBlog === null) {
     return response.status(404).json({ error: 'blog not found' })
-  } else if (deletedBlog.user.toString() === user._id.toString()) {
+  } else if (deletedBlog.user.toString() === request.user._id.toString()) {
     await Blog.findByIdAndDelete(request.params.id)
     response.status(204).end()
   }
