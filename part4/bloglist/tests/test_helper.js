@@ -16,6 +16,14 @@ const initialBlogs = [
   }
 ]
 
+const singleBlog =
+{
+  title: 'How to make your landlord happy',
+  author: 'Charles',
+  url: 'http://hello.com',
+  likes: 3
+}
+
 const initialUsers = [
   {
     username: 'club2727',
@@ -48,5 +56,5 @@ const usersInDb = async () => {
 }
 
 module.exports = {
-  initialBlogs, nonExistingId, blogsInDb, initialUsers, usersInDb
+  initialBlogs, nonExistingId, blogsInDb, initialUsers, usersInDb, singleBlog
 }

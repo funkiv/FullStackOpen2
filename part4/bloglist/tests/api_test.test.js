@@ -8,17 +8,35 @@ const assert = require('node:assert/strict')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 describe('when a blog is initally saved', () => {
-
+  let token
   beforeEach(async () => {
     await Blog.deleteMany({})
+    await User.deleteMany({})
 
     await Blog.insertMany(helper.initialBlogs)
+
+    await api
+      .post('/api/users')
+      .send({
+        username: 'club2727',
+        name: 'Chuck',
+        password: 'snowdojo' })
+
+    const response = await api
+      .post('/api/login')
+      .send({
+        username: 'club2727',
+        password: 'snowdojo'
+      })
+    token = response.body.token
   })
 
   test('a response returns every note in DB', async () => {
     const response = await api
       .get('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -28,6 +46,7 @@ describe('when a blog is initally saved', () => {
   test('if id is a response identifier', async () => {
     const response = await api
       .get('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     response.body.forEach(blog => {
@@ -45,6 +64,7 @@ describe('when a blog is initally saved', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -64,6 +84,7 @@ describe('when a blog is initally saved', () => {
       }
       const response = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -91,47 +112,55 @@ describe('when a blog is initally saved', () => {
       const promiseArray = brokenBlogs.map((blog) => {
         return api
           .post('/api/blogs')
+          .set('Authorization', `Bearer ${token}`)
           .send(blog)
           .expect(400)
       })
       await Promise.all(promiseArray)
     })
-  })
 
-  describe('when a blog is deleted', () => {
-    test('when a single blog post is deleted', async () => {
-      const savedBlog = await Blog.findOne()
 
-      await api
-        .delete(`/api/blogs/${savedBlog._id}`)
-        .expect(204)
+    describe('when a blog is deleted', () => {
+
+      test('when a single blog post is deleted', async () => {
+        const savedBlog = await api
+          .post('/api/blogs')
+          .set('Authorization', `Bearer ${token}`)
+          .send(helper.singleBlog)
+
+        await api
+          .delete(`/api/blogs/${savedBlog.body.id}`)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(204)
+      })
+
+      test('when blog id does not exist', async () => {
+        const nonExistentId = await helper.nonExistingId()
+
+        await api
+          .delete(`/api/blogs/${nonExistentId}`)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(404)
+          .expect('Content-Type', /application\/json/)
+      })
     })
 
-    test('when blog id does not exist', async () => {
-      const nonExistentId = await helper.nonExistingId()
+    describe('when updating properties of a blog', () => {
+      test('if likes PUTS correctly', async () => {
+        const savedBlog = await Blog.findOne()
+        const newLikes = savedBlog.likes + 1
 
-      await api
-        .delete(`/api/blogs/${nonExistentId}`)
-        .expect(404)
-        .expect('Content-Type', /application\/json/)
+        const response = await api
+          .put(`/api/blogs/${savedBlog._id}`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ likes: newLikes })
+          .expect(200)
+          .expect('Content-Type', /application\/json/)
+
+        assert.strictEqual(newLikes, response.body.likes)
+      })
     })
   })
-
-  describe('when updating properties of a blog', () => {
-    test('if likes PUTS correctly', async () => {
-      const savedBlog = await Blog.findOne()
-      const newLikes = savedBlog.likes + 1
-
-      const response = await api
-        .put(`/api/blogs/${savedBlog._id}`)
-        .send({ likes: newLikes })
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-
-      assert.strictEqual(newLikes, response.body.likes)
-    })
-  })
-
 })
 
 after(async () => {
