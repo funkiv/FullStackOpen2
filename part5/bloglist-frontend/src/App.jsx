@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -8,6 +9,7 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [newNotification, setNewNotification] = useState(null)
   const [newBlog, setNewBlog] = useState({
     title: '',
     author: '',
@@ -45,6 +47,13 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
+      setNewNotification({
+        text: `wrong username or password`,
+        isGood: false
+      })
+      setTimeout(() => {
+        setNewNotification(null)
+      }, 5000)
       console.log(exception)
     }
   }
@@ -64,8 +73,24 @@ const App = () => {
 
   const handleFormSubmit = async (event) => {
       event.preventDefault()
-      const response = await blogService.create(newBlog)
-      console.log(response)
+      try {
+        await blogService.create(newBlog)
+        setNewNotification({
+          text: `${newBlog.title} by ${newBlog.author} added`,
+          isGood: true
+        })
+      } catch (exception) {
+        setNewNotification({
+          text: exception.message,
+          isGood: false
+        })
+        console.log(exception)
+      }
+
+      setTimeout(() => {
+        setNewNotification(null)
+      }, 5000)
+
       setNewBlog({
         title: '',
         author: '',
@@ -77,6 +102,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
+        <Notification message={newNotification}/>
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -105,6 +131,7 @@ const App = () => {
       <h2>blogs</h2>
       <p>{user.name} is logged in</p>
       <button onClick={handleLogout}>Log out</button>
+      <Notification message={newNotification}/>
       <h1>create new</h1>
       <form onSubmit={handleFormSubmit}>
         <div>
